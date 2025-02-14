@@ -481,6 +481,63 @@
         font-size: 20px;
       }
     }
+    @media only screen and (max-width: 768px) {
+      /* Перекрываем переменные с менее насыщенными оттенками */
+      :root {
+        --red: #e57373;
+        --pink: #f48fb1;
+        --accent: #ff8a80;
+      }
+
+      /* Фон остается прежним */
+      body {
+        background: radial-gradient(circle at center, #0a0a0a 0%, #1a1a1a 100%);
+      }
+
+      .magic-container {
+        width: 100%;
+        height: 100%;
+        position: relative;
+        margin: 0 auto;
+        overflow: hidden;
+      }
+
+      /* Увеличенный конверт */
+      .envelope-3d {
+        width: 400px;      /* увеличенная ширина */
+        height: 260px;     /* увеличенная высота */
+        top: 45%;
+        left: 50%;
+        transform: translate(-50%, -40%);
+      }
+
+      /* Увеличенное письмо */
+      .letter-wrapper {
+        width: 400px;      /* увеличенная ширина */
+        height: 600px;     /* увеличенная высота */
+        top: 55%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      }
+
+      /* Корректировка внутренних отступов и размера шрифта для письма */
+      .letter-content {
+        padding: 30px;
+        font-size: 18px;
+      }
+
+      .text-line {
+        margin: 10px 0;
+      }
+
+      .spark {
+        width: 6px;
+        height: 6px;
+      }
+      .float-particle {
+        font-size: 20px;
+      }
+    }
   </style>
 </head>
 <body>
