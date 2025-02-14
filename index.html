@@ -1,329 +1,599 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <title>ULTIMATE Валентинка</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Marck+Script&display=swap');
-        
-        :root {
-            --primary: #ff1493;
-            --secondary: #ff69b4;
-            --accent: #fff700;
-        }
+  <meta charset="UTF-8">
+  <title>ULTIMATE Валентинка</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Marck+Script&display=swap');
 
-        body {
-            margin: 0;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background: linear-gradient(45deg, #141112, #4b4a4a, #787878);
-            font-family: 'Marck Script', cursive;
-            overflow: hidden;
-            cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="%23ff1493" d="M12 4.248c-3.148-5.402-12-3.825-12 2.944 0 4.661 5.571 9.427 12 15.808 6.43-6.381 12-11.147 12-15.808 0-6.792-8.875-8.306-12-2.944z"/></svg>'), auto;
-        }
+    :root {
+      --black: #0a0a0a;
+      --dark-gray: #1a1a1a;
+      --gray: #2d2d2d;
+      --light-gray: #4a4a4a;
+      --white: #ffffff;
+      --red: #ff3b3b;
+      --pink: #ff1493;
+      --accent: #ff6666;
+    }
 
-        .magic-container {
-            position: relative;
-            width: 100vw;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            filter: drop-shadow(0 0 30px rgba(255,20,147,0.2));
-        }
+    body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at center, var(--black) 0%, var(--dark-gray) 100%);
+      overflow: hidden; /* Чтобы не было скролла, если частицы вылетают */
+      height: 100vh;
+      font-family: sans-serif;
+      position: relative;
+    }
 
-        /* 3D Конверт */
-        .envelope-3d {
-            position: absolute;
-            width: 350px;
-            height: 250px;
-            transform-style: preserve-3d;
-            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1); /* Ускоренная анимация */
-            z-index: 5;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-        }
+    .magic-container {
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
 
-        .envelope-face {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            backface-visibility: hidden;
-            background: linear-gradient(160deg, #fff5f5 30%, #ffe5e1 100%);
-            clip-path: polygon(0 0, 100% 0, 100% 85%, 50% 100%, 0 85%);
-            box-shadow: 0 30px 60px rgba(0,0,0,0.15);
-        }
+    /* Эффект «пыльцы» и подсветки на фоне */
+    .magic-dust {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 2; /* Под письмом */
+    }
 
-        .envelope-front {
-            transform: rotateX(0deg);
-            z-index: 2;
-        }
+    .glow-layer {
+      position: absolute;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle at 50% 50%, rgba(255,59,59,0.3) 0%, rgba(255,20,147,0.2) 30%, transparent 70%);
+      animation: glow-pulse 6s infinite;
+    }
 
-        .envelope-back {
-            transform: rotateX(180deg);
-            background: linear-gradient(20deg, #fff0f5 10%, #ffdde1 100%);
-        }
+    @keyframes glow-pulse {
+      0%, 100% { opacity: 0.4; transform: scale(1); }
+      50% { opacity: 0.8; transform: scale(1.2); }
+    }
 
-        .envelope-flap {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(45deg, #fff0f5 40%, #ffe4e1 100%);
-            clip-path: polygon(0 0, 100% 0, 50% 50%);
-            transform-origin: top;
-            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-        }
+    /* Круглые «спарклы» */
+    .spark {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      background: var(--accent);
+      border-radius: 50%;
+      animation: sparkle 1.5s infinite;
+      box-shadow: 0 0 15px var(--pink);
+    }
 
-        /* Письмо с эффектом выдвижения */
-        .letter-wrapper {
-            position: absolute;
-            width: 320px;
-            height: 450px;
-            z-index: 4;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, 50%);
-            opacity: 0;
-            transition: all 1.2s cubic-bezier(0.4, 0, 0.2, 1);
-        }
+    @keyframes sparkle {
+      0%, 100% { transform: scale(0); opacity: 0; }
+      50% { transform: scale(1.5); opacity: 1; }
+    }
 
-        .letter {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            background: #fff;
-            border-radius: 15px;
-            overflow: hidden;
-            box-shadow: 0 40px 80px rgba(0,0,0,0.25);
-        }
+    /* Партиклы (сердечки + смайлики), улетающие вверх */
+    .float-particle {
+      position: absolute;
+      font-size: 24px;
+      animation: float-up 4s ease-out forwards;
+      z-index: 1; /* Под письмом */
+      text-shadow: 0 0 10px var(--pink);
+    }
 
-        /* Эффекты */
-        .magic-dust {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 2; /* Под письмом */
-        }
+    @keyframes float-up {
+      0% {
+        transform: translateY(0) rotate(0deg);
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(-100vh) rotate(360deg);
+        opacity: 0;
+      }
+    }
 
-        .spark {
-            position: absolute;
-            width: 8px;
-            height: 8px;
-            background: var(--accent);
-            border-radius: 50%;
-            animation: sparkle 1.5s infinite;
-        }
+    /* =====================
+       Конфетти (падают вниз)
+       ===================== */
+    .confetti {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      pointer-events: none;
+      z-index: 9999; 
+    }
 
-        .glow-layer {
-            position: absolute;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle at 50% 50%, 
-                rgba(255,105,180,0.3) 0%, 
-                rgba(255,20,147,0.2) 30%, 
-                transparent 70%);
-            animation: glow-pulse 6s infinite;
-        }
+    /* Конфетти, стартующие с левой стороны */
+    .confetti-left {
+      animation: confetti-shoot-left ease-out forwards;
+    }
 
-        /* Анимации */
-        @keyframes envelope-open {
-            0% { 
-                transform: translate(-50%, -50%) rotateX(0); 
-                opacity: 1;
-            }
-            50% { 
-                transform: translate(-50%, -50%) rotateX(-60deg) scale(0.9); 
-                opacity: 0.5;
-            }
-            100% { 
-                transform: translate(-50%, -50%) rotateX(-180deg) scale(0.8); 
-                opacity: 0;
-            }
-        }
+    @keyframes confetti-shoot-left {
+      0% {
+        transform: translateX(0) translateY(0) rotate(0deg);
+        opacity: 1;
+      }
+      100% {
+        transform: translateX(80vw) translateY(-100vh) rotate(720deg);
+        opacity: 0;
+      }
+    }
 
-        @keyframes letter-open {
-            0% { 
-                transform: translate(-50%, 50%); 
-                opacity: 0;
-            }
-            100% { 
-                transform: translate(-50%, -50%); 
-                opacity: 1;
-            }
-        }
+    /* Конфетти, стартующие с правой стороны */
+    .confetti-right {
+      animation: confetti-shoot-right ease-out forwards;
+    }
 
-        @keyframes float-up {
-            0% {
-                transform: translateY(0) rotate(0deg);
-                opacity: 1;
-            }
-            100% {
-                transform: translateY(-100vh) rotate(360deg);
-                opacity: 0;
-            }
-        }
+    @keyframes confetti-shoot-right {
+      0% {
+        transform: translateX(0) translateY(0) rotate(0deg);
+        opacity: 1;
+      }
+      100% {
+        transform: translateX(-80vw) translateY(-100vh) rotate(720deg);
+        opacity: 0;
+      }
+    }
 
-        @keyframes sparkle {
-            0%, 100% { transform: scale(0); opacity: 0; }
-            50% { transform: scale(1.5); opacity: 1; }
-        }
+    /* 3D-конверт по центру */
+    .envelope-3d {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 3;
+      width: 320px;
+      height: 200px;
+      cursor: pointer;
+      filter: drop-shadow(0 0 30px rgba(255, 192, 203, 0.5));
+    }
 
-        @keyframes glow-pulse {
-            0%, 100% { opacity: 0.4; transform: scale(1); }
-            50% { opacity: 0.8; transform: scale(1.2); }
-        }
+    /* «Покачивание» конверта, пока он закрыт */
+    @keyframes envelope-float {
+      0%, 100% { transform: translate(-50%, -50%) translateY(0); }
+      50% { transform: translate(-50%, -50%) translateY(-15px); }
+    }
+    .envelope-3d.float {
+      animation: envelope-float 4s ease-in-out infinite;
+    }
 
-        /* Активация */
-        .envelope-3d.active {
-            animation: envelope-open 0.8s forwards; /* Ускоренная анимация */
-            z-index: 3;
-        }
+    /* Передняя и задняя часть конверта */
+    .envelope-face {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 5px;
+      backface-visibility: hidden; /* 3D-эффект */
+      box-shadow: 0 0 15px rgba(255,192,203,0.4), inset 0 0 10px rgba(255,105,180,0.2);
+    }
 
-        .letter-wrapper.active {
-            animation: letter-open 1.2s 0.3s forwards;
-            z-index: 6;
-        }
+    .envelope-front {
+      z-index: 2;
+      background: linear-gradient(to bottom, #ffe4e8 0%, #ffc8d7 100%);
+      border: 2px solid #ffc0cb;
+    }
+    .envelope-front .envelope-flap {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 60%;
+      background: linear-gradient(to bottom, #fff1f4, #ffc0cb);
+      clip-path: polygon(0 0, 100% 0, 50% 100%);
+    }
 
-        /* Текст */
-        .letter-content {
-            padding: 30px;
-            position: relative;
-            z-index: 2;
-        }
+    .envelope-back {
+      transform: rotateY(180deg);
+      z-index: 1;
+      background: linear-gradient(to bottom, #ffc8d7 0%, #ffb6c1 100%);
+      border: 2px solid #ffa6b8;
+    }
 
-        .text-line {
-            opacity: 0;
-            transform: translateY(30px);
-            transition: all 0.6s ease;
-            margin: 15px 0;
-        }
+    /* Анимации открытия/закрытия конверта */
+    @keyframes envelope-open {
+      0% {
+        transform: translate(-50%, -50%) rotateX(0);
+        opacity: 1;
+      }
+      50% {
+        transform: translate(-50%, -50%) rotateX(-60deg) scale(0.9);
+        opacity: 0.5;
+      }
+      100% {
+        transform: translate(-50%, -50%) rotateX(-180deg) scale(0.8);
+        opacity: 0;
+      }
+    }
+    @keyframes envelope-close {
+      0% {
+        transform: translate(-50%, -50%) rotateX(-180deg) scale(0.8);
+        opacity: 0;
+      }
+      50% {
+        transform: translate(-50%, -50%) rotateX(-60deg) scale(0.9);
+        opacity: 0.5;
+      }
+      100% {
+        transform: translate(-50%, -50%) rotateX(0) scale(1);
+        opacity: 1;
+      }
+    }
+    .envelope-open {
+      animation: envelope-open 0.8s forwards;
+    }
+    .envelope-close {
+      animation: envelope-close 0.8s forwards;
+    }
 
-        .letter-wrapper.active .text-line {
-            opacity: 1;
-            transform: translateY(0);
-        }
+    /* Блок письма */
+    .letter-wrapper {
+      position: absolute;
+      width: 320px;
+      height: 450px;
+      z-index: 4;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, 50%);
+      opacity: 0;
+    }
 
-        /* Дополнительные эффекты */
-        .ribbon {
-            position: absolute;
-            width: 100%;
-            height: 40px;
-            background: var(--primary);
-            transform: rotate(-2deg) scaleY(0);
-            transform-origin: bottom;
-            transition: all 0.6s 0.5s ease;
-        }
+    /* Светящаяся рамка */
+    .letter-wrapper::after {
+      content: "";
+      position: absolute;
+      top: -10px;
+      left: -10px;
+      right: -10px;
+      bottom: -10px;
+      border: 2px solid var(--red);
+      border-radius: 20px;
+      opacity: 0.3;
+      z-index: -1;
+      animation: border-glow 3s infinite;
+    }
+    @keyframes border-glow {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 0.8; }
+    }
 
-        .letter-wrapper.active .ribbon {
-            transform: rotate(-2deg) scaleY(1);
-        }
+    /* Появление и исчезновение письма */
+    @keyframes letter-open {
+      0% {
+        transform: translate(-50%, 50%);
+        opacity: 0;
+      }
+      100% {
+        transform: translate(-50%, -50%);
+        opacity: 1;
+      }
+    }
+    @keyframes letter-close {
+      0% {
+        transform: translate(-50%, -50%);
+        opacity: 1;
+      }
+      100% {
+        transform: translate(-50%, 50%);
+        opacity: 0;
+      }
+    }
+    .letter-open {
+      animation: letter-open 1s forwards;
+    }
+    .letter-close {
+      animation: letter-close 1s forwards;
+    }
 
-        .heart-particle {
-            position: absolute;
-            width: 24px;
-            height: 24px;
-            background: var(--secondary);
-            clip-path: path('M12 4.248c-3.148-5.402-12-3.825-12 2.944 0 4.661 5.571 9.427 12 15.808 6.43-6.381 12-11.147 12-15.808 0-6.792-8.875-8.306-12-2.944z');
-            animation: float-up 4s ease-out forwards;
-            z-index: 1; /* Под письмом */
-        }
-    </style>
+    .letter {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      background: #000000; /* Чёрный фон письма */
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 40px 80px rgba(0,0,0,0.25);
+      border: 2px solid var(--red);
+    }
+
+    .ribbon {
+      position: absolute;
+      width: 100%;
+      height: 40px;
+      background: var(--red);
+      transform: rotate(-2deg) scaleY(0);
+      transform-origin: bottom;
+      transition: all 0.6s 0.5s ease;
+      box-shadow: 0 0 15px var(--pink);
+    }
+
+    .letter-content {
+      padding: 30px;
+      position: relative;
+      z-index: 2;
+      color: var(--white);
+      text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+      font-family: 'Dancing Script', cursive;
+    }
+
+    .text-line {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: all 0.6s ease;
+      margin: 15px 0;
+    }
+
+    @media only screen and (max-width: 768px) {
+      /* Уменьшаем размеры контейнера */
+      .magic-container {
+        width: 100%;
+        height: 100%;
+      }
+      /* Уменьшаем размеры конверта */
+      .envelope-3d {
+        width: 240px;
+        height: 150px;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      }
+      /* Корректируем размеры и позицию письма */
+      .letter-wrapper {
+        width: 240px;
+        height: 335px;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      }
+      /* Уменьшаем отступы и размеры текста */
+      .letter-content {
+        padding: 20px;
+        font-size: 16px;
+      }
+      .text-line {
+        margin: 10px 0;
+      }
+      /* Меньше размер искорок */
+      .spark {
+        width: 6px;
+        height: 6px;
+      }
+      /* Уменьшаем размер "партиклов" */
+      .float-particle {
+        font-size: 20px;
+      }
+    }
+  </style>
 </head>
 <body>
-    <div class="magic-container">
-        <div class="magic-dust">
-            <div class="glow-layer"></div>
-        </div>
-
-        <div class="envelope-3d">
-            <div class="envelope-face envelope-front">
-                <div class="envelope-flap"></div>
-            </div>
-            <div class="envelope-face envelope-back"></div>
-        </div>
-
-        <div class="letter-wrapper">
-            <div class="letter">
-                <div class="ribbon"></div>
-                <div class="letter-content">
-                    <h1 class="text-line">💖 Моей Лучшей Подруге, Сагди 💖</h1>
-                    <p class="text-line">Спасибо, что ты есть в моей жизни!</p>
-                    <p class="text-line">Твоя улыбка — мой источник радости,</p>
-                    <p class="text-line">Твоя поддержка — моя опора,</p>
-                    <p class="text-line">Твоя дружба — бесценный дар!</p>
-                    <p class="text-line">Пусть этот день наполнит твоё сердце</p>
-                    <p class="text-line">Любовью и волшебством!</p>
-                    <p class="text-line">С Дружеской Любовью от Боди ❤️</p>
-                </div>
-            </div>
-        </div>
+  <div class="magic-container">
+    <!-- Слой с пылью/свечением -->
+    <div class="magic-dust">
+      <div class="glow-layer"></div>
     </div>
 
-    <script>
-        const envelope = document.querySelector('.envelope-3d');
-        const letterWrapper = document.querySelector('.letter-wrapper');
-        let isOpen = false;
+    <!-- Конверт (изначально виден и «качаетcя») -->
+    <div class="envelope-3d float">
+      <div class="envelope-face envelope-front">
+        <div class="envelope-flap"></div>
+      </div>
+      <div class="envelope-face envelope-back"></div>
+    </div>
 
-        // Инициализация позиций
-        function initPositions() {
-            envelope.style.transform = 'translate(-50%, -50%)';
-            letterWrapper.style.transform = 'translate(-50%, 50%)';
-        }
+    <!-- Письмо (изначально скрыто) -->
+    <div class="letter-wrapper">
+      <div class="letter">
+        <div class="ribbon"></div>
+        <div class="letter-content">
+          <h1 class="text-line">💖 Моей Лучшей Подруге, Сагди 💖</h1>
+          <p class="text-line">Спасибо, что ты есть в моей жизни!</p>
+          <p class="text-line">Твоя улыбка — мой источник радости,</p>
+          <p class="text-line">Твоя поддержка — моя опора,</p>
+          <p class="text-line">Твоя дружба — бесценный дар!</p>
+          <p class="text-line">Пусть этот день наполнит твоё сердце</p>
+          <p class="text-line">Любовью и волшебством!</p>
+          <p class="text-line">С Дружеской Любовью от Боди ❤️</p>
+        </div>
+      </div>
+    </div>
+  </div>
 
-        // Плавное открытие
-        function animateCard() {
-            if(!isOpen) {
-                envelope.classList.add('active');
-                letterWrapper.classList.add('active');
-                createParticles();
-                addSparkles();
-                isOpen = true;
-            } else {
-                envelope.classList.remove('active');
-                letterWrapper.classList.remove('active');
-                isOpen = false;
-            }
-        }
+  <script>
+    const envelope = document.querySelector('.envelope-3d');
+    const letterWrapper = document.querySelector('.letter-wrapper');
+    const letter = document.querySelector('.letter');
+    const textLines = document.querySelectorAll('.text-line');
+    const ribbon = document.querySelector('.ribbon');
 
-        // Генератор частиц
-        function createParticles() {
-            const colors = ['#ff1493', '#ff69b4', '#ff85c1', '#ffa3d1'];
-            for(let i = 0; i < 50; i++) {
-                const particle = document.createElement('div');
-                particle.className = 'heart-particle';
-                particle.style.left = `${Math.random() * 100}%`;
-                particle.style.top = `${Math.random() * 100}%`;
-                particle.style.animationDuration = `${Math.random() * 2 + 2}s`;
-                particle.style.background = colors[Math.floor(Math.random() * colors.length)];
-                document.body.appendChild(particle);
-                setTimeout(() => particle.remove(), 4000);
-            }
-        }
+    let isOpen = false; // Состояние (конверт закрыт / письмо открыто)
 
-        // Эффект блёсток
-        function addSparkles() {
-            const sparkCount = 30;
-            for(let i = 0; i < sparkCount; i++) {
-                const spark = document.createElement('div');
-                spark.className = 'spark';
-                spark.style.left = `${Math.random() * 100}%`;
-                spark.style.top = `${Math.random() * 100}%`;
-                spark.style.animationDelay = `${Math.random() * 2}s`;
-                document.querySelector('.magic-dust').appendChild(spark);
-            }
-        }
+    // Позиции и стартовые стили
+    function initPositions() {
+      letterWrapper.style.transform = 'translate(-50%, 50%)';
+      letterWrapper.style.opacity = '0';
+    }
 
-        // Обработчики
-        document.addEventListener('click', animateCard);
-        window.addEventListener('load', () => {
-            initPositions();
-            envelope.classList.remove('active');
-            letterWrapper.classList.remove('active');
+    // Функция "Открыть"
+    function openCard() {
+      // Убираем покачивание
+      envelope.classList.remove('float');
+
+      // Анимация исчезновения конверта
+      envelope.classList.remove('envelope-close');
+      envelope.classList.add('envelope-open');
+
+      // Когда конверт "исчез" — запускаем письмо и конфетти
+      envelope.addEventListener('animationend', () => {
+        showLetter();
+        createConfetti(); // <-- запускаем конфетти!
+      }, { once: true });
+    }
+
+    // Показать письмо
+    function showLetter() {
+      // Скрываем конверт (иначе может «мерцать»)
+      envelope.style.opacity = '0';
+
+      // Запускаем анимацию "появления письма"
+      letterWrapper.classList.remove('letter-close');
+      letterWrapper.classList.add('letter-open');
+
+      // Когда письмо появилось, «разворачиваем» ленту и текст
+      letterWrapper.addEventListener('animationend', () => {
+        ribbon.style.transform = 'rotate(-2deg) scaleY(1)';
+        // Показываем строчки с задержкой
+        textLines.forEach((line, index) => {
+          setTimeout(() => {
+            line.style.opacity = '1';
+            line.style.transform = 'translateY(0)';
+          }, 300 * index);
         });
-    </script>
+      }, { once: true });
+    }
+
+    // Функция "Закрыть"
+    function closeCard() {
+      // Убираем текст
+      textLines.forEach(line => {
+        line.style.opacity = '0';
+        line.style.transform = 'translateY(30px)';
+      });
+      // Ленту сворачиваем
+      ribbon.style.transform = 'rotate(-2deg) scaleY(0)';
+
+      // Анимация "исчезновения письма"
+      letterWrapper.classList.remove('letter-open');
+      letterWrapper.classList.add('letter-close');
+
+      // Когда письмо скрылось, возвращаем конверт
+      letterWrapper.addEventListener('animationend', showEnvelope, { once: true });
+    }
+
+    // Показать конверт обратно
+    function showEnvelope() {
+      // Прячем письмо
+      letterWrapper.style.opacity = '0';
+
+      // Запускаем анимацию "появления конверта"
+      envelope.classList.remove('envelope-open');
+      envelope.classList.add('envelope-close');
+
+      // Когда конверт «появился» — снова включаем покачивание
+      envelope.addEventListener('animationend', () => {
+        envelope.style.opacity = '1';
+        envelope.classList.add('float');
+      }, { once: true });
+    }
+
+    // Клик по документу — либо открыть, либо закрыть
+    function toggleCard() {
+      if(!isOpen) {
+        openCard();
+        isOpen = true;
+      } else {
+        closeCard();
+        isOpen = false;
+      }
+    }
+
+    // Генератор «партиклов» (сердечки + обнимашки), улетающих вверх
+    function createParticles() {
+      const count = 50;
+      for(let i = 0; i < count; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'float-particle';
+        // С вероятностью 50% — сердечко, 50% — смайлик «обнимашки»
+        if(Math.random() < 0.5) {
+          particle.textContent = '❤️';
+        } else {
+          particle.textContent = '🤗';
+        }
+        // Случайное позиционирование и длительность
+        particle.style.left = `${Math.random() * 100}%`;
+        particle.style.top = `${Math.random() * 100}%`;
+        particle.style.fontSize = `${Math.random() * 15 + 20}px`; 
+        particle.style.animationDuration = `${Math.random() * 2 + 2}s`;
+
+        document.body.appendChild(particle);
+        setTimeout(() => particle.remove(), 4000);
+      }
+    }
+
+    // Генератор конфетти (мелкие квадратики, вылетающие под наклоном вверх)
+    function createConfetti() {
+      // Набор ярких цветов
+      const colors = ['#f44336', '#e91e63', '#9c27b0', '#2196f3', '#03a9f4', '#4caf50', '#ffeb3b', '#ff9800'];
+      const confettiCount = 80; // Увеличенное количество конфетти
+
+     /* for (let i = 0; i < confettiCount; i++) {
+        const conf = document.createElement('div');
+        conf.className = 'confetti';
+        // Случайный цвет
+        conf.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+
+        // Случайный размер
+        const size = Math.random() * 10 + 8; // 8-18px
+        conf.style.width = `${size}px`;
+        conf.style.height = `${size}px`;
+
+        // Определяем с какой стороны появится конфетти
+        const side = Math.random() < 0.5 ? 'left' : 'right';
+        // Стартовая позиция – в нижней части экрана с разбросом по вертикали (от 85% до 100%)
+        conf.style.top = `${Math.random() * 15 + 85}%`;
+
+        // Добавляем небольшой случайный сдвиг по горизонтали для каждого случая
+        if (side === 'left') {
+          conf.style.left = `${Math.random() * 20 - 20}px`; // от -20 до 0px
+          conf.classList.add('confetti-left');
+        } else {
+          conf.style.right = `${Math.random() * 20 - 20}px`; // от -20 до 0px
+          conf.classList.add('confetti-right');
+        }
+
+        // Рандомизируем длительность анимации (3-5 сек)
+        const duration = (Math.random() * 2 + 3).toFixed(1);
+        conf.style.animationDuration = duration + 's';
+
+        document.body.appendChild(conf);
+
+        // Удаляем по окончании анимации
+        setTimeout(() => conf.remove(), duration * 1000 + 500);
+      }*/
+    }
+
+    // Эффект блёсток (круглых искорок) – создаём при загрузке
+    function addSparkles() {
+      const sparkCount = 30;
+      for(let i = 0; i < sparkCount; i++) {
+        const spark = document.createElement('div');
+        spark.className = 'spark';
+        spark.style.left = `${Math.random() * 100}%`;
+        spark.style.top = `${Math.random() * 100}%`;
+        spark.style.animationDelay = `${Math.random() * 2}s`;
+        document.querySelector('.magic-dust').appendChild(spark);
+      }
+    }
+
+    // Клик по письму — генерируем сердечки и смайлики «🤗», улетающие вверх
+    letter.addEventListener('click', () => {
+      createParticles();
+    });
+
+    // Клик по документу — открыть/закрыть письмо
+    document.addEventListener('click', toggleCard);
+
+    // При загрузке
+    window.addEventListener('load', () => {
+      initPositions();
+      addSparkles();
+    });
+
+    // Лёгкое «шевеление» конверта, пока он закрыт
+    setInterval(() => {
+      if(!isOpen) {
+        envelope.style.transform = `translate(-50%, -50%) rotate(${Math.random() * 2 - 1}deg)`;
+      }
+    }, 3000);
+  </script>
 </body>
 </html>
